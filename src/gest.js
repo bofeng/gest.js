@@ -83,7 +83,7 @@ window.gest = (function (window) {
 			utils.removeEventListener('load', window, _DOMready);
 
 			//we need to call and wait for init to finish before we know that we are actually ready
-			if (init()) { gestIsInitialised = true; }
+			if (createVideoCanvas()) { gestIsInitialised = true; }
 
 			if (userHasAskedToStart && gestIsInitialised) {
 				//the user has already asked us to start, but we weren't ready. Now we are... let's try again
@@ -114,7 +114,7 @@ window.gest = (function (window) {
 	},
 
 	/* @private */
-	init = function () {
+	createVideoCanvas = function () {
 		//create required DOM elements
 		video = document.createElement('video');
 		canvas = document.createElement('canvas');
@@ -137,6 +137,15 @@ window.gest = (function (window) {
 
 		return true;
 	},
+
+    removeVideoCanvas = function () {
+        if (video) {
+            video.parentNode.removeChild(video);
+        }
+        if (canvas) {
+            canvas.parentNode.removeChild(canvas);
+        }
+    },
 
 	/* @private */
 	throwError = function(_code, _obj) {
@@ -599,7 +608,9 @@ window.gest = (function (window) {
 	gest.prototype.stop = function () {
 		if (!gestIsInitialised || !userHasAskedToStart) { return false; }
 
-		if (video) { video.src = ''; }
+        removeVideoCanvas();
+        createVideoCanvas();
+
         if (!stream) return false;
         if (stream.stop) {
             stream.stop();
