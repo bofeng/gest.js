@@ -1,4 +1,4 @@
-/* 
+/*
  * @name: gest.js
  * @description: gest.js is a webcam based gesture recognition library that helps developers make webpages more immersive
  * @version: 0.5.0
@@ -72,7 +72,7 @@ window.gest = (function (window) {
 		} else {
 			//otherwise wait for DOM to be ready before initialising
 			utils.addEventListener('DOMContentLoaded', document, _DOMready);
-			
+
 			//fallback to window.onload, this will always work
 			utils.addEventListener('load', window, _DOMready);
 		}
@@ -81,7 +81,7 @@ window.gest = (function (window) {
 		function _DOMready() {
 			utils.removeEventListener('DOMContentLoaded', document, _DOMready);
 			utils.removeEventListener('load', window, _DOMready);
-			
+
 			//we need to call and wait for init to finish before we know that we are actually ready
 			if (init()) { gestIsInitialised = true; }
 
@@ -121,7 +121,7 @@ window.gest = (function (window) {
 
 		if (!!video.canPlayType && !!(canvas.getContext && canvas.getContext('2d')) && !!navigator.getUserMedia) { //check browser support
 			//setup DOM elements
-			
+
 			video.width = 300;
 			video.height = 225;
 			video.setAttribute('style', 'visibility: hidden;');
@@ -167,7 +167,7 @@ window.gest = (function (window) {
 			case 12:
 				_error = {code: _code, message: 'No media tracks of the type specified in the constraints are found.', obj: _obj};
 				break;
-			
+
 			case 13:
 				_error = {code: _code, message: 'Couldn\'t get access to webcam.', obj: _obj};
 				break;
@@ -208,7 +208,7 @@ window.gest = (function (window) {
 	},
 
 	/* @private */
-	/* skin filtering using HUE (colour) SATURATION (dominance of the colour) VALUE (brightness of the colour) 
+	/* skin filtering using HUE (colour) SATURATION (dominance of the colour) VALUE (brightness of the colour)
 	 * this algorithms reliability is heavily dependant on lighting conditions - see this journal article http://wwwsst.ums.edu.my/data/file/Su7YcHiV9AK5.pdf
 	 */
 	skinFilter = {
@@ -369,7 +369,7 @@ window.gest = (function (window) {
 
 			//filtering
 			this.filteredTotal = (this.filteringFactor * this.filteredTotal) + ((1-this.filteringFactor) * movement.d);
-			
+
 			var dfilteredTotal = movement.d - this.filteredTotal,
 				good = dfilteredTotal > this.minTotalChange; //check that total pixel change is grater than threshold
 
@@ -389,9 +389,9 @@ window.gest = (function (window) {
 
 					var dx = movement.x - lookForGesture.prior.x,
 						dy = movement.y - lookForGesture.prior.y,
-					
+
 						dirx = Math.abs(dy) < Math.abs(dx); //(dx,dy) is on a bowtie
-					
+
 					//console.log(dirx, dx, dy);
 					if (dx < -this.minDirChange && dirx) {
 						dispatchGestEvent({
@@ -513,7 +513,7 @@ window.gest = (function (window) {
 				return false;
 			}
 		},
-		
+
 		fireEvent: function(evntObj) {
 			try {
 				if (evntObj.evntElement.dispatchEvent){
@@ -541,7 +541,7 @@ window.gest = (function (window) {
 
 		//check to see if we are already running
 		if (!video || !(video.paused || video.ended || video.seeking || video.readyState < video.HAVE_FUTURE_DATA)) { throwError(2); return false; }
-		
+
 		navigator.getUserMedia(
 			// constraints
 			{
@@ -566,7 +566,7 @@ window.gest = (function (window) {
 
 								var width = Math.floor(video.getBoundingClientRect().width / settings.videoCompressionRate),
 									height = Math.floor(video.getBoundingClientRect().height / settings.videoCompressionRate);
-								
+
 								//define canvas sizes
 								canvas.width = width;
 								canvas.height = height;
@@ -600,7 +600,17 @@ window.gest = (function (window) {
 		if (!gestIsInitialised || !userHasAskedToStart) { return false; }
 
 		if (video) { video.src = ''; }
-		return !!stream.stop();
+        if (!stream) return false;
+        if (stream.stop) {
+            stream.stop();
+        }
+        if (stream.getTracks) {
+            var tracks = stream.getTracks();
+            tracks.forEach(function (track) {
+                track.stop();
+            });
+        }
+        return true;
 	};
 
 	/* @public */
@@ -640,7 +650,7 @@ window.gest = (function (window) {
 				// video.setAttribute('style', 'visibility: hidden');
 				// canvas.setAttribute('style', 'visibility: hidden');
 			}
-			
+
 			return settings.debug;
 		},
 		skinFilter: function(_state) {
