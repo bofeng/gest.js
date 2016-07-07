@@ -625,12 +625,20 @@ window.gest = (function (window) {
 	};
 
 	/* @public */
+    gest.prototype._cbks = [];
+    gest.prototype.unsubscribeAllCallback = function () {
+        gest.prototype._cbks.forEach(function (cbk) {
+            utils.removeEventListener('gest', document, cbk);
+        });
+    };
 	gest.prototype.options = {
 		subscribeWithCallback: function(callback) {
 			if (callback) {
-				utils.addEventListener('gest', document, function(gesture) {
-					callback(gesture);
-				});
+                var cbk = function (gesture) {
+                    callback(gesture);
+                };
+                gest.prototype._cbks.push(cbk);
+				utils.addEventListener('gest', document, cbk);
 			}
 		},
 		sensitivity: function(_value) {
